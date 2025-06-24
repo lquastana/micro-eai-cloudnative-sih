@@ -10,3 +10,4 @@ httpx
 PyYAML
 jinja2
 prometheus_client
+requests

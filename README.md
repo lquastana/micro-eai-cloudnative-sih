@@ -56,7 +56,7 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ## 🚀 Fonctionnalités incluses
 
 ✅ Réception de messages HL7 via MLLP  
-✅ Récupération et dépôt de fichiers HL7 via SFTP (polling automatique si `SFTP_*` configuré)
+✅ Récupération et dépôt de fichiers HL7 via SFTP (upload automatique si `SFTP_UPLOAD_DIR` configuré)
 ✅ Parsing/validation HL7 v2 (segments personnalisés inclus)
 ✅ Support des messages FHIR (JSON) et CDA (XML)
 ✅ Routage conditionnel (MSH.9, PID.3, etc.)
@@ -81,6 +81,7 @@ docker-compose up --build
 # activer la supervision si besoin
 # mettre ENABLE_MONITORING=true puis lancer :
 # COMPOSE_PROFILES=monitoring docker-compose up --build
+# pour activer Loki exporter LOKI_URL=http://localhost:3100/loki/api/v1/push
 ````
 
 L'application expose :
@@ -92,9 +93,10 @@ L'application expose :
   * `GET /messages/{id}` : détail d'un message
   * `POST /messages/{id}/replay` : rejeu d'un message
   * `GET /messages/export?format=csv` : export CSV
-* Interface Web sur `http://localhost:8000/ui/messages`
+* Interface Web sur `http://localhost:8000/ui/messages` (recherche et rejeu)
 * Redis en local sur `6379`
 * Endpoint Prometheus sur `http://localhost:8000/metrics` (si `ENABLE_MONITORING=true`)
+* Logs centralisés via Loki (`LOKI_URL`)
 
 ---
 

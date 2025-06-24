@@ -75,10 +75,13 @@ def replay_message(message_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/ui/messages", response_class=HTMLResponse)
-def ui_list_messages(request: Request, db: Session = Depends(get_db)):
-    messages = db.query(models.HL7Message).all()
+def ui_list_messages(request: Request, q: str | None = None, db: Session = Depends(get_db)):
+    query = db.query(models.HL7Message)
+    if q:
+        query = query.filter(models.HL7Message.raw.contains(q))
+    messages = query.all()
     return templates.TemplateResponse(
-        "messages.html", {"request": request, "messages": messages}
+        "messages.html", {"request": request, "messages": messages, "q": q or ""}
     )
 
 

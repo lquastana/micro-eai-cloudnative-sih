@@ -31,3 +31,8 @@ services:
     profiles: ["monitoring"]
     ports:
       - "3000:3000"
+  loki:
+    image: grafana/loki
+    profiles: ["monitoring"]
+    ports:
+      - "3100:3100"

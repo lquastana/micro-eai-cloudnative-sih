@@ -9,4 +9,5 @@ class HL7Message(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     message_type = Column(String(20), index=True)
+    status = Column(String(20), index=True, default="received")
     raw = Column(Text)

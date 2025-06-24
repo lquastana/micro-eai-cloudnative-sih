@@ -10,7 +10,7 @@ from ..hl7.parser import parse_hl7_message
 from ..fhir.parser import parse_fhir_message
 from ..cda.parser import parse_cda_message
 from ..hl7.router import Router
-from ..sftp.client import download_files
+from ..sftp.client import download_files, upload_file
 from ..db.session import SessionLocal
 from ..db.models import HL7Message
 
@@ -81,18 +81,30 @@ def process_message(text: str):
             message_type = f"CDA:{cda.tag}"
             msg = None
     db = SessionLocal()
-    db_msg = HL7Message(raw=text, message_type=message_type)
+    db_msg = HL7Message(raw=text, message_type=message_type, status="received")
     db.add(db_msg)
     db.commit()
     msg_id = db_msg.id
+    db.refresh(db_msg)
     db.close()
     if ENABLE_MONITORING:
         processed_counter.inc()
     if msg is not None:
         try:
             router.route(msg)
+            status = "processed"
         except Exception as exc:
             logger.exception("Routing failed: {}", exc)
+            status = "error"
+    else:
+        status = "processed"
+    db = SessionLocal()
+    db_msg = db.query(HL7Message).get(msg_id)
+    db_msg.status = status
+    db.commit()
+    db.close()
+    if status == "processed":
+        deposit_message.delay(msg_id)
     return msg_id
 
 
@@ -105,3 +117,42 @@ def replay_message(message_id: int):
         process_message.delay(msg.raw)
         return True
     return False
+
+
+@celery_app.task
+def deposit_message(message_id: int):
+    host = os.getenv("SFTP_HOST")
+    user = os.getenv("SFTP_USER")
+    password = os.getenv("SFTP_PASSWORD")
+    upload_dir = os.getenv("SFTP_UPLOAD_DIR", "/out")
+    if not host or not user or not password:
+        logger.warning("SFTP credentials not configured")
+        return False
+    db = SessionLocal()
+    msg = db.query(HL7Message).get(message_id)
+    db.close()
+    if not msg:
+        return False
+    tmp = Path(f"/tmp/{message_id}.hl7")
+    tmp.write_text(msg.raw)
+    try:
+        upload_file(host, user, password, str(tmp), f"{upload_dir}/{message_id}.hl7")
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+    return True
+
+
+@celery_app.task
+def retry_failed_messages():
+    """Replay messages that previously failed."""
+    db = SessionLocal()
+    msgs = db.query(HL7Message).filter(HL7Message.status == "error").all()
+    count = 0
+    for m in msgs:
+        process_message.delay(m.raw)
+        m.status = "queued"
+        count += 1
+    db.commit()
+    db.close()
+    return count
