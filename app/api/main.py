@@ -1,5 +1,12 @@
 from fastapi import FastAPI, Depends, HTTPException, Request, Form
-from fastapi.responses import HTMLResponse, StreamingResponse, RedirectResponse
+from fastapi.responses import (
+    HTMLResponse,
+    StreamingResponse,
+    RedirectResponse,
+    Response,
+)
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
+from ..metrics import ENABLE_MONITORING, processed_counter
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
@@ -10,6 +17,12 @@ from ..db import models
 init_db()
 app = FastAPI(title="micro-eai-cloudnative-sih")
 templates = Jinja2Templates(directory="app/api/templates")
+
+if ENABLE_MONITORING:
+    @app.get("/metrics")
+    def metrics():
+        data = generate_latest()
+        return Response(data, media_type=CONTENT_TYPE_LATEST)
 
 
 def get_db():

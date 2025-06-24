@@ -4,6 +4,8 @@ from celery import Celery
 from loguru import logger
 from pathlib import Path
 
+from ..metrics import ENABLE_MONITORING, processed_counter
+
 from ..hl7.parser import parse_hl7_message
 from ..fhir.parser import parse_fhir_message
 from ..cda.parser import parse_cda_message
@@ -84,6 +86,8 @@ def process_message(text: str):
     db.commit()
     msg_id = db_msg.id
     db.close()
+    if ENABLE_MONITORING:
+        processed_counter.inc()
     if msg is not None:
         try:
             router.route(msg)

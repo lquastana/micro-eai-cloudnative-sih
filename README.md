@@ -74,10 +74,13 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
-# personnaliser les règles de routage et les accès SFTP si besoin
+# personnaliser les règles de routage, la supervision et les accès SFTP si besoin
 cp routes.yml.sample routes.yml
 pip install -r requirements.txt
 docker-compose up --build
+# activer la supervision si besoin
+# mettre ENABLE_MONITORING=true puis lancer :
+# COMPOSE_PROFILES=monitoring docker-compose up --build
 ````
 
 L'application expose :
@@ -91,6 +94,7 @@ L'application expose :
   * `GET /messages/export?format=csv` : export CSV
 * Interface Web sur `http://localhost:8000/ui/messages`
 * Redis en local sur `6379`
+* Endpoint Prometheus sur `http://localhost:8000/metrics` (si `ENABLE_MONITORING=true`)
 
 ---
 
@@ -120,7 +124,7 @@ micro-eai-cloudnative-sih/
 * [x] UI Web pour visualisation + rejeu
 * [x] Export CSV / JSON pour suivi
 * [x] Support des formats FHIR / CDA
-* [ ] Intégration Prometheus + Grafana
+* [x] Intégration Prometheus + Grafana
 
 ---
 
