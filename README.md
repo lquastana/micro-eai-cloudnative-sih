@@ -56,12 +56,12 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ## 🚀 Fonctionnalités incluses
 
 ✅ Réception de messages HL7 via MLLP  
-✅ Récupération et dépôt de fichiers HL7 via SFTP  
+✅ Récupération et dépôt de fichiers HL7 via SFTP (polling automatique si `SFTP_*` configuré)
 ✅ Parsing/validation HL7 v2 (segments personnalisés inclus)  
 ✅ Routage conditionnel (MSH.9, PID.3, etc.)
 ℹ️  Les règles sont déclarées dans `routes.yml` et chargées dynamiquement.
 ✅ Archivage, logs détaillés, base des messages
-✅ Visualisation des messages reçus (via API ou Web UI à venir)  
+✅ Visualisation des messages reçus (API ou mini Web UI)
 ✅ Rejeu manuel ou automatique des messages en erreur  
 ✅ Conteneurisation complète via Docker Compose  
 
@@ -73,7 +73,7 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
-# personnaliser les règles de routage si besoin
+# personnaliser les règles de routage et les accès SFTP si besoin
 cp routes.yml.sample routes.yml
 pip install -r requirements.txt
 docker-compose up --build
@@ -86,6 +86,8 @@ L'application expose :
   * `GET /messages` : liste des messages stockés
   * `GET /messages/{id}` : détail d'un message
   * `POST /messages/{id}/replay` : rejeu d'un message
+  * `GET /messages/export?format=csv` : export CSV
+* Interface Web sur `http://localhost:8000/ui/messages`
 * Redis en local sur `6379`
 
 ---
@@ -113,8 +115,8 @@ micro-eai-cloudnative-sih/
 ## 📚 Roadmap
 
 * [x] Intégration d’un moteur de règles YAML
-* [ ] UI Web pour visualisation + rejeu
-* [ ] Export CSV / JSON pour suivi
+* [x] UI Web pour visualisation + rejeu
+* [x] Export CSV / JSON pour suivi
 * [ ] Support des formats FHIR / CDA
 * [ ] Intégration Prometheus + Grafana
 

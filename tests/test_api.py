@@ -19,3 +19,7 @@ def test_list_and_get_message(tmp_path):
     resp = client.get(f"/messages/{message_id}")
     assert resp.status_code == 200
     assert resp.json()["id"] == message_id
+
+    resp = client.get("/messages/export", params={"format": "csv"})
+    assert resp.status_code == 200
+    assert "text/csv" in resp.headers["content-type"]

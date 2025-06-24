@@ -2,9 +2,11 @@
 import os
 from celery import Celery
 from loguru import logger
+from pathlib import Path
 
 from ..hl7.parser import parse_hl7_message
 from ..hl7.router import Router
+from ..sftp.client import download_files
 from ..db.session import SessionLocal
 from ..db.models import HL7Message
 
@@ -33,6 +35,28 @@ router.add_route("ORU^R01", handle_oru_r01)
 routes_file = os.getenv("ROUTES_FILE")
 if routes_file and os.path.exists(routes_file):
     router.load_from_yaml(routes_file)
+
+
+@celery_app.task
+def poll_sftp():
+    """Download HL7 files from an SFTP server and process them."""
+    host = os.getenv("SFTP_HOST")
+    user = os.getenv("SFTP_USER")
+    password = os.getenv("SFTP_PASSWORD")
+    remote_dir = os.getenv("SFTP_REMOTE_DIR", "/")
+    local_dir = os.getenv("SFTP_LOCAL_DIR", "./sftp")
+    if not host or not user or not password:
+        logger.warning("SFTP credentials not configured")
+        return 0
+    download_files(host, user, password, remote_dir, local_dir)
+    count = 0
+    for file in Path(local_dir).iterdir():
+        if file.is_file():
+            text = file.read_text()
+            process_message.delay(text)
+            file.unlink()
+            count += 1
+    return count
 
 
 @celery_app.task

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages</title>
+</head>
+<body>
+<h1>Messages</h1>
+<table>
+    <tr><th>ID</th><th>Type</th><th>Actions</th></tr>
+    {% for msg in messages %}
+    <tr>
+        <td>{{ msg.id }}</td>
+        <td>{{ msg.message_type }}</td>
+        <td>
+            <form action="/ui/messages/{{ msg.id }}/replay" method="post" style="display:inline;">
+                <button type="submit">Replay</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
