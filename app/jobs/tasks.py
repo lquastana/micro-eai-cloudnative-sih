@@ -11,12 +11,13 @@ from ..fhir.parser import parse_fhir_message
 from ..cda.parser import parse_cda_message
 from ..hl7.router import Router
 from ..sftp.client import download_files, upload_file
-from ..db.session import SessionLocal
+from ..db.session import SessionLocal, init_db
 from ..db.models import HL7Message
 
 
 broker_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
 celery_app = Celery(__name__, broker=broker_url)
+init_db()
 
 
 # simple router instance with example handler
@@ -156,3 +157,13 @@ def retry_failed_messages():
     db.commit()
     db.close()
     return count
+
+# periodic tasks for polling SFTP and retrying failures
+celery_app.conf.beat_schedule = {
+    "poll-sftp": {"task": "app.jobs.tasks.poll_sftp", "schedule": 60.0},
+    "retry-failed": {
+        "task": "app.jobs.tasks.retry_failed_messages",
+        "schedule": 300.0,
+    },
+}
+celery_app.conf.timezone = "UTC"

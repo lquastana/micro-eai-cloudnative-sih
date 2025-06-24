@@ -56,14 +56,14 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ## 🚀 Fonctionnalités incluses
 
 ✅ Réception de messages HL7 via MLLP  
-✅ Récupération et dépôt de fichiers HL7 via SFTP (upload automatique si `SFTP_UPLOAD_DIR` configuré)
+✅ Récupération et dépôt de fichiers HL7 via SFTP (polling + upload automatique si `SFTP_UPLOAD_DIR` configuré)
 ✅ Parsing/validation HL7 v2 (segments personnalisés inclus)
 ✅ Support des messages FHIR (JSON) et CDA (XML)
 ✅ Routage conditionnel (MSH.9, PID.3, etc.)
 ℹ️  Les règles sont déclarées dans `routes.yml` et chargées dynamiquement.
 ✅ Archivage, logs détaillés, base des messages
 ✅ Visualisation des messages reçus (API ou mini Web UI)
-✅ Rejeu manuel ou automatique des messages en erreur  
+✅ Rejeu manuel ou automatique des messages en erreur (task périodique)
 ✅ Conteneurisation complète via Docker Compose  
 
 ---
@@ -78,6 +78,8 @@ cp .env.sample .env
 cp routes.yml.sample routes.yml
 pip install -r requirements.txt
 docker-compose up --build
+# le worker Celery lance aussi un scheduler (-B) pour
+# poller l'SFTP et rejouer les erreurs
 # activer la supervision si besoin
 # mettre ENABLE_MONITORING=true puis lancer :
 # COMPOSE_PROFILES=monitoring docker-compose up --build
