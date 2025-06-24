@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+hl7apy
+paramiko
+celery[redis]
+SQLAlchemy
+psycopg2-binary
+loguru

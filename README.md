@@ -72,6 +72,7 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
+pip install -r requirements.txt
 docker-compose up --build
 ````
 
