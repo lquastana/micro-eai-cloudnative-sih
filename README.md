@@ -58,8 +58,9 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ✅ Réception de messages HL7 via MLLP  
 ✅ Récupération et dépôt de fichiers HL7 via SFTP  
 ✅ Parsing/validation HL7 v2 (segments personnalisés inclus)  
-✅ Routage conditionnel (MSH.9, PID.3, etc.)  
-✅ Archivage, logs détaillés, base des messages  
+✅ Routage conditionnel (MSH.9, PID.3, etc.)
+ℹ️  Les règles sont déclarées dans `routes.yml` et chargées dynamiquement.
+✅ Archivage, logs détaillés, base des messages
 ✅ Visualisation des messages reçus (via API ou Web UI à venir)  
 ✅ Rejeu manuel ou automatique des messages en erreur  
 ✅ Conteneurisation complète via Docker Compose  
@@ -72,6 +73,8 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
+# personnaliser les règles de routage si besoin
+cp routes.yml.sample routes.yml
 pip install -r requirements.txt
 docker-compose up --build
 ````
@@ -109,7 +112,7 @@ micro-eai-cloudnative-sih/
 
 ## 📚 Roadmap
 
-* [ ] Intégration d’un moteur de règles YAML
+* [x] Intégration d’un moteur de règles YAML
 * [ ] UI Web pour visualisation + rejeu
 * [ ] Export CSV / JSON pour suivi
 * [ ] Support des formats FHIR / CDA

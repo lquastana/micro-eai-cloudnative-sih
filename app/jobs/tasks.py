@@ -22,7 +22,17 @@ def handle_adt_a01(message):
     logger.info("Handled ADT^A01 message")
 
 
+def handle_oru_r01(message):
+    """Example handler for ORU^R01 messages."""
+    logger.info("Handled ORU^R01 message")
+
+
 router.add_route("ADT^A01", handle_adt_a01)
+router.add_route("ORU^R01", handle_oru_r01)
+
+routes_file = os.getenv("ROUTES_FILE")
+if routes_file and os.path.exists(routes_file):
+    router.load_from_yaml(routes_file)
 
 
 @celery_app.task
