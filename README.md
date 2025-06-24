@@ -57,7 +57,8 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 
 ✅ Réception de messages HL7 via MLLP  
 ✅ Récupération et dépôt de fichiers HL7 via SFTP (polling automatique si `SFTP_*` configuré)
-✅ Parsing/validation HL7 v2 (segments personnalisés inclus)  
+✅ Parsing/validation HL7 v2 (segments personnalisés inclus)
+✅ Support des messages FHIR (JSON) et CDA (XML)
 ✅ Routage conditionnel (MSH.9, PID.3, etc.)
 ℹ️  Les règles sont déclarées dans `routes.yml` et chargées dynamiquement.
 ✅ Archivage, logs détaillés, base des messages
@@ -82,6 +83,7 @@ docker-compose up --build
 L'application expose :
 
 * MLLP sur le port `2575`
+* Acceptation des messages FHIR (JSON) ou CDA (XML)
 * API REST (FastAPI) sur `http://localhost:8000`
   * `GET /messages` : liste des messages stockés
   * `GET /messages/{id}` : détail d'un message
@@ -117,7 +119,7 @@ micro-eai-cloudnative-sih/
 * [x] Intégration d’un moteur de règles YAML
 * [x] UI Web pour visualisation + rejeu
 * [x] Export CSV / JSON pour suivi
-* [ ] Support des formats FHIR / CDA
+* [x] Support des formats FHIR / CDA
 * [ ] Intégration Prometheus + Grafana
 
 ---

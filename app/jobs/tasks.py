@@ -5,6 +5,8 @@ from loguru import logger
 from pathlib import Path
 
 from ..hl7.parser import parse_hl7_message
+from ..fhir.parser import parse_fhir_message
+from ..cda.parser import parse_cda_message
 from ..hl7.router import Router
 from ..sftp.client import download_files
 from ..db.session import SessionLocal
@@ -61,17 +63,32 @@ def poll_sftp():
 
 @celery_app.task
 def process_message(text: str):
-    msg = parse_hl7_message(text)
+    format = "HL7"
+    try:
+        msg = parse_hl7_message(text)
+        message_type = msg.MSH.MSH_9.to_er7()
+    except Exception:
+        try:
+            fhir = parse_fhir_message(text)
+            format = "FHIR"
+            message_type = f"FHIR:{fhir.get('resourceType')}"
+            msg = None
+        except Exception:
+            cda = parse_cda_message(text)
+            format = "CDA"
+            message_type = f"CDA:{cda.tag}"
+            msg = None
     db = SessionLocal()
-    db_msg = HL7Message(raw=text, message_type=msg.MSH.MSH_9.to_er7())
+    db_msg = HL7Message(raw=text, message_type=message_type)
     db.add(db_msg)
     db.commit()
     msg_id = db_msg.id
     db.close()
-    try:
-        router.route(msg)
-    except Exception as exc:
-        logger.exception("Routing failed: {}", exc)
+    if msg is not None:
+        try:
+            router.route(msg)
+        except Exception as exc:
+            logger.exception("Routing failed: {}", exc)
     return msg_id
 
 
