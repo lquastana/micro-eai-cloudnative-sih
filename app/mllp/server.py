@@ -1,5 +1,6 @@
 """Basic MLLP server implementation using asyncio."""
 import asyncio
+from loguru import logger
 
 from ..hl7.parser import parse_hl7_message
 from ..jobs.tasks import process_message
@@ -21,6 +22,7 @@ class MLLPProtocol(asyncio.Protocol):
         if self.buffer.endswith(EB + CR):
             payload = self.buffer.strip(SB + EB + CR)
             message = payload.decode()
+            logger.info("Received HL7 message")
             parse_hl7_message(message)
             process_message.delay(message)
             ack = SB + b"AA" + EB + CR

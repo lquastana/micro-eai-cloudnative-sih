@@ -1,14 +1,28 @@
 """Celery tasks for message processing."""
 import os
 from celery import Celery
+from loguru import logger
 
 from ..hl7.parser import parse_hl7_message
+from ..hl7.router import Router
 from ..db.session import SessionLocal
 from ..db.models import HL7Message
 
 
 broker_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
 celery_app = Celery(__name__, broker=broker_url)
+
+
+# simple router instance with example handler
+router = Router()
+
+
+def handle_adt_a01(message):
+    """Example handler for ADT^A01 messages."""
+    logger.info("Handled ADT^A01 message")
+
+
+router.add_route("ADT^A01", handle_adt_a01)
 
 
 @celery_app.task
@@ -18,5 +32,21 @@ def process_message(text: str):
     db_msg = HL7Message(raw=text, message_type=msg.MSH.MSH_9.to_er7())
     db.add(db_msg)
     db.commit()
+    msg_id = db_msg.id
     db.close()
-    return db_msg.id
+    try:
+        router.route(msg)
+    except Exception as exc:
+        logger.exception("Routing failed: {}", exc)
+    return msg_id
+
+
+@celery_app.task
+def replay_message(message_id: int):
+    db = SessionLocal()
+    msg = db.query(HL7Message).get(message_id)
+    db.close()
+    if msg:
+        process_message.delay(msg.raw)
+        return True
+    return False

@@ -80,6 +80,9 @@ L'application expose :
 
 * MLLP sur le port `2575`
 * API REST (FastAPI) sur `http://localhost:8000`
+  * `GET /messages` : liste des messages stockés
+  * `GET /messages/{id}` : détail d'un message
+  * `POST /messages/{id}/replay` : rejeu d'un message
 * Redis en local sur `6379`
 
 ---
