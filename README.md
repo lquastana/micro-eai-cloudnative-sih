@@ -64,7 +64,8 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ✅ Archivage, logs détaillés, base des messages
 ✅ Visualisation des messages reçus (API ou mini Web UI)
 ✅ Rejeu manuel ou automatique des messages en erreur (task périodique)
-✅ Conteneurisation complète via Docker Compose  
+✅ Conteneurisation complète via Docker Compose
+✅ Petit producteur MLLP pour tester l'envoi de messages
 
 ---
 
@@ -80,6 +81,8 @@ pip install -r requirements.txt
 docker-compose up --build
 # le worker Celery lance aussi un scheduler (-B) pour
 # poller l'SFTP et rejouer les erreurs
+# pour tester rapidement l'interface MLLP :
+# python -m app.mllp.client samples/adt_a01.hl7
 # activer la supervision si besoin
 # mettre ENABLE_MONITORING=true puis lancer :
 # COMPOSE_PROFILES=monitoring docker-compose up --build
@@ -114,6 +117,7 @@ micro-eai-cloudnative-sih/
 │   ├── jobs/              # Workers Celery
 │   └── db/                # Modèles SQLAlchemy / ORM
 ├── tests/                 # Tests unitaires et d'intégration
+├── samples/               # Exemples de messages HL7
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
