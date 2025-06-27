@@ -1,0 +1,9 @@
+routes:
+  - type: ADT^A01
+    handler: app.jobs.tasks.handle_adt_a01
+  - type: ORU^R01
+    handler: app.jobs.tasks.handle_oru_r01
+  - type: ADT^A01
+    field: PID.3
+    equals: "999"
+    handler: app.jobs.tasks.handle_adt_a01

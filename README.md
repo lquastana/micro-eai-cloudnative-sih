@@ -56,13 +56,17 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ## 🚀 Fonctionnalités incluses
 
 ✅ Réception de messages HL7 via MLLP  
-✅ Récupération et dépôt de fichiers HL7 via SFTP  
-✅ Parsing/validation HL7 v2 (segments personnalisés inclus)  
-✅ Routage conditionnel (MSH.9, PID.3, etc.)  
-✅ Archivage, logs détaillés, base des messages  
-✅ Visualisation des messages reçus (via API ou Web UI à venir)  
-✅ Rejeu manuel ou automatique des messages en erreur  
-✅ Conteneurisation complète via Docker Compose  
+✅ Récupération et dépôt de fichiers HL7 via SFTP (polling + upload automatique si `SFTP_UPLOAD_DIR` configuré)
+✅ Parsing/validation HL7 v2 (segments personnalisés inclus)
+✅ Support des messages FHIR (JSON) et CDA (XML)
+✅ Routage conditionnel (MSH.9, PID.3, etc.)
+ℹ️  Les règles sont déclarées dans `routes.yml` et chargées dynamiquement.
+✅ Archivage, logs détaillés, base des messages
+✅ Visualisation des messages reçus (API ou mini Web UI)
+✅ Rejeu manuel ou automatique des messages en erreur (task périodique)
+✅ Suivi du dépôt SFTP avec mise à jour du statut (deposited/error)
+✅ Conteneurisation complète via Docker Compose
+✅ Petit producteur MLLP pour tester l'envoi de messages
 
 ---
 
@@ -72,14 +76,35 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
+# personnaliser les règles de routage, la supervision et les accès SFTP si besoin
+# ce fichier est chargé par docker-compose pour passer les variables d'environnement
+cp routes.yml.sample routes.yml
+pip install -r requirements.txt
 docker-compose up --build
+# la base SQLite est partagée entre l'API et le worker grâce au volume monté
+# le worker Celery lance aussi un scheduler (-B) pour
+# poller l'SFTP et rejouer les erreurs
+# pour tester rapidement l'interface MLLP :
+# python -m app.mllp.client samples/adt_a01.hl7
+# activer la supervision si besoin
+# mettre ENABLE_MONITORING=true puis lancer :
+# COMPOSE_PROFILES=monitoring docker-compose up --build
+# pour activer Loki exporter LOKI_URL=http://localhost:3100/loki/api/v1/push
 ````
 
 L'application expose :
 
 * MLLP sur le port `2575`
+* Acceptation des messages FHIR (JSON) ou CDA (XML)
 * API REST (FastAPI) sur `http://localhost:8000`
+  * `GET /messages` : liste des messages stockés
+  * `GET /messages/{id}` : détail d'un message
+  * `POST /messages/{id}/replay` : rejeu d'un message
+  * `GET /messages/export?format=csv` : export CSV
+* Interface Web sur `http://localhost:8000/ui/messages` (recherche et rejeu)
 * Redis en local sur `6379`
+* Endpoint Prometheus sur `http://localhost:8000/metrics` (si `ENABLE_MONITORING=true`)
+* Logs centralisés via Loki (`LOKI_URL`)
 
 ---
 
@@ -95,6 +120,7 @@ micro-eai-cloudnative-sih/
 │   ├── jobs/              # Workers Celery
 │   └── db/                # Modèles SQLAlchemy / ORM
 ├── tests/                 # Tests unitaires et d'intégration
+├── samples/               # Exemples de messages HL7
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -105,11 +131,11 @@ micro-eai-cloudnative-sih/
 
 ## 📚 Roadmap
 
-* [ ] Intégration d’un moteur de règles YAML
-* [ ] UI Web pour visualisation + rejeu
-* [ ] Export CSV / JSON pour suivi
-* [ ] Support des formats FHIR / CDA
-* [ ] Intégration Prometheus + Grafana
+* [x] Intégration d’un moteur de règles YAML
+* [x] UI Web pour visualisation + rejeu
+* [x] Export CSV / JSON pour suivi
+* [x] Support des formats FHIR / CDA
+* [x] Intégration Prometheus + Grafana
 
 ---
 

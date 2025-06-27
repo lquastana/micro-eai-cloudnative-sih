@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Messages</title>
+</head>
+<body>
+<h1>Messages</h1>
+<form method="get" action="/ui/messages">
+    <input type="text" name="q" value="{{ q }}" placeholder="Recherche"/>
+    <button type="submit">Search</button>
+</form>
+<table>
+    <tr><th>ID</th><th>Type</th><th>Actions</th></tr>
+    {% for msg in messages %}
+    <tr>
+        <td>{{ msg.id }}</td>
+        <td>{{ msg.message_type }}</td>
+        <td>
+            <form action="/ui/messages/{{ msg.id }}/replay" method="post" style="display:inline;">
+                <button type="submit">Replay</button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

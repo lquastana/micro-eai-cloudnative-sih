@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.db
+.env
+.env.*
+!.env.sample
+messages.db
+routes.yml
