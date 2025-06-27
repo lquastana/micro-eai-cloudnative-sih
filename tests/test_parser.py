@@ -10,6 +10,12 @@ def test_parse_with_newlines():
     message = "MSH|^~\\&|S|F|R|F|2020||ADT^A01|1|P|2.5\nPID|1||1"
     parsed = parse_hl7_message(message)
     assert get_message_type(parsed) == "ADT^A01"
+
+
+def test_parse_with_crlf():
+    message = "MSH|^~\\&|S|F|R|F|2020||ADT^A01|1|P|2.5\r\nPID|1||1"
+    parsed = parse_hl7_message(message)
+    assert get_message_type(parsed) == "ADT^A01"
 from app.fhir.parser import parse_fhir_message
 from app.cda.parser import parse_cda_message
 

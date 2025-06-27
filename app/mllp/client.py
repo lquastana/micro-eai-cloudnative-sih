@@ -7,6 +7,7 @@ CR = b"\x0d"
 
 def send_message(host: str, port: int, message: str, timeout: float = 5.0) -> str:
     """Send a single HL7 message via MLLP and return the ACK code."""
+    message = message.replace("\r\n", "\r")
     if "\n" in message and "\r" not in message:
         message = message.replace("\n", "\r")
     payload = SB + message.encode() + EB + CR
