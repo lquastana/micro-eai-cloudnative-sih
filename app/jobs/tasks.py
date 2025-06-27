@@ -131,17 +131,25 @@ def deposit_message(message_id: int):
         return False
     db = SessionLocal()
     msg = db.query(HL7Message).get(message_id)
-    db.close()
     if not msg:
+        db.close()
         return False
     tmp = Path(f"/tmp/{message_id}.hl7")
     tmp.write_text(msg.raw)
     try:
         upload_file(host, user, password, str(tmp), f"{upload_dir}/{message_id}.hl7")
+        msg.status = "deposited"
+        success = True
+    except Exception as exc:
+        logger.exception("SFTP upload failed: {}", exc)
+        msg.status = "error"
+        success = False
     finally:
         if tmp.exists():
             tmp.unlink()
-    return True
+        db.commit()
+        db.close()
+    return success
 
 
 @celery_app.task

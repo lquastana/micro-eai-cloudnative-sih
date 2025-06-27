@@ -64,6 +64,7 @@ Il permet de gérer efficacement les **flux entrants/sortants**, la **transforma
 ✅ Archivage, logs détaillés, base des messages
 ✅ Visualisation des messages reçus (API ou mini Web UI)
 ✅ Rejeu manuel ou automatique des messages en erreur (task périodique)
+✅ Suivi du dépôt SFTP avec mise à jour du statut (deposited/error)
 ✅ Conteneurisation complète via Docker Compose
 ✅ Petit producteur MLLP pour tester l'envoi de messages
 
