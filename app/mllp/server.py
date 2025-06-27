@@ -20,7 +20,7 @@ class MLLPProtocol(asyncio.Protocol):
     def data_received(self, data: bytes):
         self.buffer += data
         if self.buffer.endswith(EB + CR):
-            payload = self.buffer.strip(SB + EB + CR)
+            payload = self.buffer[len(SB):-len(EB + CR)]
             message = payload.decode()
             logger.info("Received HL7 message")
             parse_hl7_message(message)

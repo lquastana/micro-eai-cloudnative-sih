@@ -4,6 +4,9 @@ from hl7apy.exceptions import HL7apyException
 
 def parse_hl7_message(data: str):
     """Parse an HL7 message string and return the message object."""
+    # hl7apy expects CR as segment separator; tolerate LF only messages
+    if "\n" in data and "\r" not in data:
+        data = data.replace("\n", "\r")
     try:
         return parse_message(data, find_groups=False)
     except HL7apyException as exc:

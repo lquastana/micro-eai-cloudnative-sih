@@ -7,6 +7,8 @@ CR = b"\x0d"
 
 def send_message(host: str, port: int, message: str, timeout: float = 5.0) -> str:
     """Send a single HL7 message via MLLP and return the ACK code."""
+    if "\n" in message and "\r" not in message:
+        message = message.replace("\n", "\r")
     payload = SB + message.encode() + EB + CR
     with socket.create_connection((host, port), timeout=timeout) as sock:
         sock.sendall(payload)
@@ -16,7 +18,7 @@ def send_message(host: str, port: int, message: str, timeout: float = 5.0) -> st
             if not chunk:
                 break
             data += chunk
-    ack = data.strip(SB + EB + CR).decode()
+    ack = data[len(SB):-len(EB + CR)].decode()
     return ack
 
 
