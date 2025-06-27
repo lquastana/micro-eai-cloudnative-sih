@@ -4,6 +4,8 @@ services:
     build: .
     volumes:
       - .:/app
+    env_file:
+      - .env
     ports:
       - "8000:8000"
       - "2575:2575"
@@ -12,6 +14,10 @@ services:
       - redis
   worker:
     build: .
+    volumes:
+      - .:/app
+    env_file:
+      - .env
     command: celery -A app.jobs.tasks.celery_app worker -B --loglevel=info
     depends_on:
       - redis

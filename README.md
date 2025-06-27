@@ -76,9 +76,11 @@ git clone https://github.com/votre-org/micro-eai-cloudnative-sih.git
 cd micro-eai-cloudnative-sih
 cp .env.sample .env
 # personnaliser les règles de routage, la supervision et les accès SFTP si besoin
+# ce fichier est chargé par docker-compose pour passer les variables d'environnement
 cp routes.yml.sample routes.yml
 pip install -r requirements.txt
 docker-compose up --build
+# la base SQLite est partagée entre l'API et le worker grâce au volume monté
 # le worker Celery lance aussi un scheduler (-B) pour
 # poller l'SFTP et rejouer les erreurs
 # pour tester rapidement l'interface MLLP :
